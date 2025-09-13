@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypoTutor - Intelligent Typing Practice</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>TypoTutor</h1>
+                </div>
+                <nav class="nav">
+                    <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+                    <button class="nav-btn" data-view="practice">Practice</button>
+                    <button class="nav-btn" data-view="statistics">Statistics</button>
+                    <button class="nav-btn" data-view="lessons">Lessons</button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Dashboard View -->
+            <section id="dashboard-view" class="view active">
+                <div class="dashboard-header">
+                    <h2>Welcome Back!</h2>
+                    <p class="dashboard-subtitle">Keep up your typing practice streak</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="current-wpm">0</div>
+                            <div class="stat-label">Current WPM</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="current-accuracy">0%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="total-practice-time">0h</div>
+                            <div class="stat-label">Total Practice</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="streak-days">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-sections">
+                    <div class="section">
+                        <h3>Recent Activity</h3>
+                        <div class="activity-list" id="recent-activity">
+                            <!-- Recent sessions will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h3>Progress Overview</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="progress-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <button class="btn btn--primary" onclick="startQuickPractice()">Quick Practice</button>
+                    <button class="btn btn--secondary" onclick="showRecommendations()">View Recommendations</button>
+                </div>
+            </section>
+
+            <!-- Practice View -->
+            <section id="practice-view" class="view">
+                <div class="practice-header">
+                    <div class="exercise-selection">
+                        <label class="form-label">Exercise Type:</label>
+                        <select id="exercise-type" class="form-control">
+                            <option value="words">Common Words</option>
+                            <option value="sentences">Sentences</option>
+                            <option value="paragraphs">Paragraphs</option>
+                            <option value="numbers">Numbers</option>
+                            <option value="custom">Custom Text</option>
+                        </select>
+                    </div>
+                    
+                    <div class="difficulty-selection">
+                        <label class="form-label">Difficulty:</label>
+                        <select id="difficulty-level" class="form-control">
+                            <option value="1">Beginner</option>
+                            <option value="2">Intermediate</option>
+                            <option value="3">Advanced</option>
+                            <option value="4">Expert</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="practice-stats">
+                    <div class="practice-stat">
+                        <span class="stat-label">WPM</span>
+                        <span class="stat-value" id="live-wpm">0</span>
+                    </div>
+                    <div class="practice-stat">
+                        <span class="stat-label">Accuracy</span>
+                        <span class="stat-value" id="live-accuracy">100%</span>
+                    </div>
+                    <div class="practice-stat">
+                        <span class="stat-label">Time</span>
+                        <span class="stat-value" id="practice-timer">0:00</span>
+                    </div>
+                    <div class="practice-stat">
+                        <span class="stat-label">Errors</span>
+                        <span class="stat-value" id="error-count">0</span>
+                    </div>
+                </div>
+
+                <div class="practice-area">
+                    <div class="text-display" id="text-display">
+                        Click "Start Practice" to begin typing
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    
+                    <textarea 
+                        id="typing-input" 
+                        class="typing-input" 
+                        placeholder="Type the text above here..."
+                        disabled
+                    ></textarea>
+                </div>
+
+                <div class="practice-controls">
+                    <button class="btn btn--primary" id="start-practice-btn">Start Practice</button>
+                    <button class="btn btn--secondary" id="reset-practice-btn">Reset</button>
+                    <button class="btn btn--outline" id="custom-text-btn">Custom Text</button>
+                </div>
+
+                <div class="error-alerts" id="error-alerts"></div>
+
+                <div class="ml-predictions" id="ml-predictions">
+                    <h4>AI Predictions & Suggestions</h4>
+                    <div class="predictions-list" id="predictions-list"></div>
+                </div>
+            </section>
+
+            <!-- Statistics View -->
+            <section id="statistics-view" class="view">
+                <div class="statistics-header">
+                    <h2>Detailed Statistics</h2>
+                    <div class="time-range-selector">
+                        <select id="stats-range" class="form-control">
+                            <option value="7">Last 7 Days</option>
+                            <option value="30">Last 30 Days</option>
+                            <option value="90">Last 3 Months</option>
+                            <option value="365">Last Year</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="statistics-grid">
+                    <div class="chart-section">
+                        <h3>WPM Progress</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="wpm-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-section">
+                        <h3>Accuracy Trends</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="accuracy-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-section">
+                        <h3>Common Errors</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="errors-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-section">
+                        <h3>Practice Time</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="practice-time-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detailed-stats">
+                    <h3>Key Performance Analysis</h3>
+                    <div class="keyboard-heatmap" id="keyboard-heatmap">
+                        <!-- Keyboard visualization will be generated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lessons View -->
+            <section id="lessons-view" class="view">
+                <div class="lessons-header">
+                    <h2>Adaptive Lessons</h2>
+                    <p>Personalized exercises based on your performance</p>
+                </div>
+
+                <div class="recommendations-section" id="recommendations-section">
+                    <h3>Recommended for You</h3>
+                    <div class="lesson-cards" id="recommended-lessons">
+                        <!-- AI-generated lesson recommendations -->
+                    </div>
+                </div>
+
+                <div class="lesson-categories">
+                    <div class="category-section">
+                        <h3>Focus Areas</h3>
+                        <div class="lesson-grid" id="focus-lessons">
+                            <!-- Generated based on user weaknesses -->
+                        </div>
+                    </div>
+                    
+                    <div class="category-section">
+                        <h3>All Exercises</h3>
+                        <div class="lesson-grid" id="all-lessons">
+                            <div class="lesson-card" data-type="words">
+                                <h4>Common Words</h4>
+                                <p>Practice the most frequently used words</p>
+                                <span class="difficulty-badge beginner">Beginner</span>
+                            </div>
+                            
+                            <div class="lesson-card" data-type="sentences">
+                                <h4>Sentences</h4>
+                                <p>Type complete sentences with proper flow</p>
+                                <span class="difficulty-badge intermediate">Intermediate</span>
+                            </div>
+                            
+                            <div class="lesson-card" data-type="paragraphs">
+                                <h4>Paragraphs</h4>
+                                <p>Extended typing for endurance building</p>
+                                <span class="difficulty-badge advanced">Advanced</span>
+                            </div>
+                            
+                            <div class="lesson-card" data-type="numbers">
+                                <h4>Numbers & Symbols</h4>
+                                <p>Practice numeric keypad and special characters</p>
+                                <span class="difficulty-badge intermediate">Intermediate</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Custom Text Modal -->
+        <div id="custom-text-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Custom Text Practice</h3>
+                    <button class="modal-close" onclick="closeCustomTextModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Enter your custom text:</label>
+                    <textarea id="custom-text-input" class="form-control" rows="6" placeholder="Type or paste your custom text here..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn--secondary" onclick="closeCustomTextModal()">Cancel</button>
+                    <button class="btn btn--primary" onclick="useCustomText()">Use This Text</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Modal -->
+        <div id="results-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Practice Results</h3>
+                    <button class="modal-close" onclick="closeResultsModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="results-summary" id="results-summary">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn--secondary" onclick="closeResultsModal()">Close</button>
+                    <button class="btn btn--primary" onclick="startNewPractice()">Practice Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

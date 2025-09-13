@@ -1,0 +1,12 @@
+{
+  "name": "typo-tutor",
+  "version": "1.0.0",
+  "description": "Typing tutor app with error prediction",
+  "scripts": {
+    "start": "http-server ./ -p 8080",
+    "test": "node ./tests/lessonAdjuster.test.js && node ./tests/progressGraph.test.js"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
